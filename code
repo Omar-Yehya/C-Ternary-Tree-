@@ -1,0 +1,281 @@
+#include<iostream>
+#include<vector>
+#include<string>
+using namespace std;
+
+struct Node {
+	int data;
+	Node* left;
+	Node* right;
+	Node* middle;
+};
+//create my node for the tree only differnce between this and the binary tree like we have been doing in class is there is now a middle node.
+
+class Tree {
+private:
+	Node* root;
+	void insert_h(int, Node*);
+	void traversal(Node*);
+	int distance(Node*, int);
+	int depth(Node*);
+	void return_h(Node*, int);
+	string encode_h(Node*, int);
+	int locate_h(Node*, string);
+// private declared function 
+
+public:
+	void insert(int);
+	void generateBST(vector<int>);
+	void traverse_MLWR();
+	int root_distance(int);
+	int depth_h();
+	void return_nodes(int);
+	string encode(int);
+	int locate_nodes(string);
+	// public declared function 
+
+	
+	Tree() {
+		root = NULL;
+	}
+};
+//I set root to NULL as defult
+
+void Tree::insert_h(int value, Node* curr) {
+	if (value == curr->data) {
+		if (curr->middle != NULL)
+			insert_h(value, curr->middle);
+		else {
+			curr->middle = new Node;
+			curr->middle->data = value;
+			curr->middle->left = NULL;
+			curr->middle->right = NULL;
+			curr->middle->middle = NULL;
+
+		}
+	}
+	if (value < curr->data) {
+		if (curr->left != NULL)
+			insert_h(value, curr->left);
+		else {
+			curr->left = new Node;
+			curr->left->data = value;
+			curr->left->left = NULL;
+			curr->left->right = NULL;
+			curr->left->middle = NULL;
+		}
+	}
+	else if (value > curr->data) {
+		if (curr->right != NULL)
+			insert_h(value, curr->right);
+		else {
+			curr->right = new Node;
+			curr->right->data = value;
+			curr->right->left = NULL;
+			curr->right->right = NULL;
+			curr->right->middle = NULL;
+		}
+	}
+}
+//just like a binary tree all steps are the same but I now include a middle node and cronstruct each node to have a middle pointer.
+
+void Tree::insert(int value) {
+	if (root == NULL) {
+		root = new Node;
+		root->data = value;
+		root->left = NULL;
+		root->right = NULL;
+	}
+	else
+		insert_h(value, root);
+}
+//this is for the first value
+
+
+void Tree::generateBST(vector<int> v) {
+	for (auto x = v.begin(); x != v.end(); ++x)
+		insert(*x);
+}
+//using the vector to creat the tree
+
+void Tree::traversal(Node* curr) {
+	if (curr != NULL) {
+		traversal(curr->middle);
+		traversal(curr->left);
+		cout << curr->data << endl;
+		traversal(curr->right);
+	}
+}
+//for this fucntion we go Mid,Left,Print,Right so I simply travers all of mid then left print then travers right and repeat untill all is complete
+
+void Tree::traverse_MLWR() {
+	traversal(root);
+}
+
+
+int Tree::distance(Node* curr, int value) {
+	if (curr == NULL) {
+		return -1;  // value not found
+	}
+	if (curr->data == value) {
+		return 0;
+	}
+	int loc = distance(curr->left, value);
+	if (loc == -1) {
+		loc = distance(curr->right, value);
+	}
+	if (loc == -1) {
+		loc = distance(curr->middle, value);
+	}
+	return loc == -1 ? -1 : loc + 1;
+}
+//I use my distance function to check all areas of tree I check the left right and middle.
+
+//I use ? operator to check my two cases if the value was found and if it wasnt in the case it isnt my loc short for location is is set to -1 indicating that is was not found and if 
+//loc is not equal to -1 then it was found and loc+1 is run.
+
+int Tree::root_distance(int value) {
+	int dist = distance(root, value);
+	if (dist < 0) {
+		return -1;  
+	}
+	return dist;
+}
+//I retrun -1 if the value doesnt exist 
+
+
+
+string Tree::encode_h(Node* curr, int value) {
+ string code;
+ static int head=curr->data;
+	if (curr != NULL) {
+        if(value==head){
+            return "1";
+        }
+	else if (value < curr->data) {
+    code +="0" + encode_h(curr->left, value);
+    }
+	else if (value > curr->data) {
+    code +="2" + encode_h(curr->right, value);
+			
+	    }
+	}
+    return code;
+}
+//I creat a string variable named code and simply check wether or not the value is greater than the first or smaller then the first value in the case 
+//that it is smaller I go left and every time I move left I am adding 0 to my string variable code. Same concept for the right side
+//The reason I have a static int called head is becuase I need to check the case where the user might enter the number 5 AKA the first middle node 
+//in the case that the user enters that value we simply return 1 
+
+
+string Tree::encode(int value) {
+    
+	return encode_h(root, value);
+}
+
+int Tree::locate_h(Node*curr,string value){
+    static int head=curr->data;
+    
+    if(curr!=NULL)
+   
+    
+    for(char number:value){
+        
+        if(number=='1'){
+            return head;
+        }
+       
+        else if(number=='0'){
+            curr=curr->left;
+        }
+        else if(number=='2'){
+            curr=curr->right;
+        }
+    }
+    
+    return curr->data;
+    
+}
+//for this function I use a string called value the value being the encode value that was just created. I use a forloop to run through 
+//each character and depending on what the value is I move in that direction again I had to check the case where the number is just 1 
+//so I have another static variable just like before set to the first value.
+
+int Tree::locate_nodes(string value){
+    return locate_h(root,value);
+}
+
+
+void Tree::return_h(Node* curr, int value) {
+	if (curr != NULL) {
+		if (value == 0) {
+			if (curr->left == NULL && curr->right == NULL && curr->middle == NULL) {
+				cout << to_string(curr->data) << " ";
+			}
+		}
+		else if (value == 1) {
+			if ((curr->left == NULL && curr->right == NULL && curr->middle != NULL) ||
+				(curr->left == NULL && curr->middle == NULL && curr->right != NULL) ||
+				(curr->left != NULL && curr->middle == NULL && curr->right == NULL)) {
+				cout << to_string(curr->data) << " ";
+			}
+		}
+		else if (value == 2) {
+			if (curr->left != NULL && curr->right != NULL && curr->middle == NULL) {
+				cout << to_string(curr->data) << " ";
+			}
+		}
+		return_h(curr->left, value);
+		return_h(curr->right, value);
+		return_h(curr->middle, value);
+	}
+}
+//this function took a while to create becasue of all the cases we have three cases 0,1 and 2 all we are looking for is connections of the nodes
+// for example when the user types 0 we just need to check that there is no connecton from the right left or middle the tricky one was case 1
+// for this case we have to check for only one connection but that can either be from the right left or middle which is why I needed all those cases.
+void Tree::return_nodes(int value) {
+	return_h(root, value);
+}
+
+
+
+
+
+int Tree::depth(Node* curr) {
+	if (curr == NULL) {
+		return 0;
+	}
+	int left = depth(curr->left);
+	int right = depth(curr->right);
+	int middle = depth(curr->middle); 
+	return max(max(left, middle), right)+1 ;
+}
+//for this function I simply made the left right and middle all int and then found the deepest point using the max funtion. I add the +1 for every depth each side has
+int Tree::depth_h() {
+	return depth(root)-1;
+}
+//I have to subtract 1 because it counts the first node as a depth.
+
+int main() {
+	Tree T;
+	vector<int> v = {5,7,3,5,2,4,9,4,12,9,8};
+	T.generateBST(v);
+
+	T.traverse_MLWR();
+			cout<<"_______________________"<<endl;
+
+	cout<<T.root_distance(8)<<endl;
+			cout<<"_______________________"<<endl;
+
+	cout << T.encode(12)<<endl;
+		cout<<"_______________________"<<endl;
+   
+    cout<<T.locate_nodes("222")<<endl;
+	    cout<<"_______________________"<<endl;
+
+	T.return_nodes(0);
+		cout<<"_______________________"<<endl;
+
+	cout<<T.depth_h();
+
+	return 0;
+}
