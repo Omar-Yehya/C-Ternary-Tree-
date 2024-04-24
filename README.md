@@ -1,2 +1,2 @@
 # C-Ternary-Tree-
-Used C++ to create and operate on ternary tree
+This C++ project introduces a Trinary Tree, an extension of the traditional binary tree. Each node in this tree can have up to three children: left, middle, and right. The middle child is used to handle duplicate values. This tree supports various operations including insertion, traversal, distance calculations from the root, encoding node paths, and returning specific node types based on their child connections.
